@@ -35,3 +35,5 @@
 2018-06-07 10:24:21.072  INFO 19574 --- [http-nio-8080-exec-4] c.s.phone.controller.LoginController     : 用户携带验证码进行登录验证
 2018-06-07 10:24:23.179  INFO 19574 --- [http-nio-8080-exec-5] c.s.phone.controller.LoginController     : 用户获取验证码
 2018-06-07 10:24:23.286  WARN 19574 --- [http-nio-8080-exec-5] o.a.commons.httpclient.HttpMethodBase    : Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+2018-06-07 10:59:17.105  INFO 19574 --- [Thread-10] ationConfigEmbeddedWebApplicationContext : Closing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@3aefe5e5: startup date [Thu Jun 07 10:19:53 CST 2018]; root of context hierarchy
+2018-06-07 10:59:17.124  INFO 19574 --- [Thread-10] o.s.j.e.a.AnnotationMBeanExporter        : Unregistering JMX-exposed beans on shutdown
