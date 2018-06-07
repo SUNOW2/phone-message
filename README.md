@@ -6,5 +6,5 @@
 - "/phone/oauth"接口将用户提交的手机号、验证码和redis中存储的手机号、验证号进行比对，从而达到验证的目的
 
 ## 联系方式
-QQ邮箱: 1605611836@qq.com
-google邮箱: 
+QQ邮箱: 1605611836@qq.com(常用)<br />
+google邮箱: sunow521310@gmail.com<br />
