@@ -3,7 +3,7 @@ package com.software.phone.service.impl;
 import com.software.phone.po.LoginPo;
 import com.software.phone.service.LoginService;
 import com.software.phone.utils.HttpRequestUtil;
-import com.software.phone.utils.RedisUtil;
+import com.software.phone.utils.RedisComponentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class LoginServiceImpl implements LoginService {
     HttpRequestUtil httpRequestUtil;
 
     @Autowired
-    RedisUtil redisUtil;
+    RedisComponentUtil redisUtil;
 
     @Override
     public String sendMessage(LoginPo loginPo) {

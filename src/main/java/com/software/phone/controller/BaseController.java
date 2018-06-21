@@ -4,7 +4,7 @@ import com.software.phone.conf.ResponseEntity;
 
 import java.util.Collections;
 
-public class BaseController {
+public class BaseController extends BaseMedicalController {
 
     /**
      * 成功的Status Code
