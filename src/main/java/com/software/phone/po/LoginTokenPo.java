@@ -18,4 +18,9 @@ public class LoginTokenPo {
      */
     @NotEmpty(message = "联系方式不可以为空")
     private String phone;
+
+    /**
+     * 验证码，当用户连续两次用户名/密码输入错误的时候启用
+     */
+    private String chkCode;
 }

@@ -5,13 +5,18 @@ import com.software.phone.exception.MedicalException;
 import com.software.phone.po.LoginPo;
 import com.software.phone.po.LoginTokenPo;
 import com.software.phone.service.LoginService;
+import com.software.phone.utils.AppConstantsUtil;
+import com.software.phone.utils.HttpRequestUtil;
 import com.software.phone.utils.JwtComponentUtil;
+import com.software.phone.utils.RedisComponentUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RestController
@@ -23,6 +28,9 @@ public class LoginController extends BaseController {
 
     @Autowired
     JwtComponentUtil jwtComponentUtil;
+
+    @Autowired
+    RedisComponentUtil redisComponent;
 
     /**
      * 描述：用户点击获取验证码
@@ -61,13 +69,27 @@ public class LoginController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/tokenLogin", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity tokenLogin(LoginTokenPo loginTokenPo, @RequestHeader(value = "Authorization") String authorization) throws MedicalException {
+    public ResponseEntity tokenLogin(LoginTokenPo loginTokenPo, HttpServletRequest request) {
         // 首先，验证用户是否已经注册
 
-        // 接着，验证用户是否已经登录
-        String token = jwtComponentUtil.createToken(loginTokenPo);
-        if (token != "") {
-            return this.getSuccessResult("登录成功", token);
+        Integer errNum = (Integer) redisComponent.get("medicalLoginError" + HttpRequestUtil.getIp(request));
+        errNum = errNum == null ? 0 : errNum;
+
+        if(errNum > AppConstantsUtil.ERR_NUM) {
+            String chkCode = loginTokenPo.getChkCode();
+            if (chkCode == null) {
+                log.warn("用户未输入验证码");
+                return this.getFailResult("请输入验证码");
+            }
+        }
+
+        // 接着，验证用户名、密码是否正确,此处的 "true" 代指用户名、密码正确，如果登录正确，则执行以下代码块
+        if (true) {
+            String token = jwtComponentUtil.createToken(loginTokenPo);
+            redisComponent.set("medicalLoginError" + HttpRequestUtil.getIp(request), null);
+            if (token != "") {
+                return this.getSuccessResult("登录成功", token);
+            }
         }
 
         return this.getFailResult("登录失败");

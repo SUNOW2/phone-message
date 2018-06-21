@@ -10,11 +10,13 @@ public interface AppConstantsUtil {
      */
     String JWT_SECURITY = "medical";
 
-    public static final int NUM24 = 24;
+    int NUM24 = 24;
 
-    public static final int NUM30 = 30;
+    int NUM30 = 30;
 
-    public static final int NUM60 = 60;
+    int NUM60 = 60;
+
+    int ERR_NUM = 2;
 
 
     interface ExpTime {
