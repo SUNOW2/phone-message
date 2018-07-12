@@ -1,8 +1,12 @@
 package com.software.phone.controller;
 
+import com.software.phone.conf.CentreCutPageResponse;
+import com.software.phone.conf.CentreListResponse;
 import com.software.phone.conf.ResponseEntity;
+import com.software.phone.po.BaseQueryPo;
 
 import java.util.Collections;
+import java.util.List;
 
 public class BaseController extends BaseMedicalController {
 
@@ -91,5 +95,40 @@ public class BaseController extends BaseMedicalController {
      */
     protected <T> ResponseEntity<T> getFailResult(String msg, int errorCode,T obj) {
         return new ResponseEntity<>("fail", errorCode, msg, obj);
+    }
+
+    /**
+     * 描述：获取不分页的数据
+     * @param list
+     * @param <T>
+     * @return
+     */
+    protected <T> CentreListResponse<T> getListResponse(List<T> list) {
+        return new CentreListResponse<>(list);
+    }
+
+    /**
+     * 描述：获取分页的数据
+     * @param pageNum
+     * @param pageSize
+     * @param totalCount
+     * @param list
+     * @param <T>
+     * @return
+     */
+    protected <T> CentreCutPageResponse<T> getCutPageResponse(int pageNum, int pageSize, long totalCount, List<T> list) {
+        return new CentreCutPageResponse<>(pageNum, pageSize, totalCount, list);
+    }
+
+    /**
+     * 描述：获取不分页的数据，BaseQueryPo是包含了页码和每页条数的Java类
+     * @param baseQueryPo
+     * @param totalCount
+     * @param list
+     * @param <T>
+     * @return
+     */
+    protected <T> CentreCutPageResponse<T> getCutPageResponse(BaseQueryPo baseQueryPo, long totalCount, List<T> list) {
+        return new CentreCutPageResponse<>(baseQueryPo.getPageNum(), baseQueryPo.getPageSize(), totalCount, list);
     }
 }
