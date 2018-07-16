@@ -20,6 +20,12 @@ public class LoginPo {
     private String phone;
 
     /**
+     * 密码
+     */
+    @NotEmpty(message = "密码不可以为空")
+    private String password;
+
+    /**
      * 验证码
      */
     private String code;

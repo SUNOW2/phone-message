@@ -47,7 +47,8 @@ public final class IPUtil {
             if (StringUtils.isNotBlank(info)) {
                 String[] ips = info.trim().split(",");
                 for (String s : ips) {
-                    if (!"unknown".equalsIgnoreCase(s)) {//取第一个非unknown的ip地址
+                    //取第一个非unknown的ip地址
+                    if (!"unknown".equalsIgnoreCase(s)) {
                         ip = s;
                         break;
                     }
@@ -55,10 +56,12 @@ public final class IPUtil {
             }
         }
         if (!checkIP(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");//只在 Apache（Weblogic Plug-In Enable）+WebLogic 搭配下出现
+            //只在 Apache（Weblogic Plug-In Enable）+WebLogic 搭配下出现
+            ip = request.getHeader("Proxy-Client-IP");
         }
         if (!checkIP(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");//只在 Apache（Weblogic Plug-In Enable）+WebLogic 搭配下出现
+            //只在 Apache（Weblogic Plug-In Enable）+WebLogic 搭配下出现
+            ip = request.getHeader("WL-Proxy-Client-IP");
         }
         if (!checkIP(ip)) {
             ip = request.getHeader("HTTP_CLIENT_IP");

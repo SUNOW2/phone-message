@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @data 2018/6/20 13:50
  */
 public class BaseException extends Exception implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 630241503631120092L;
     private static final int DEFAULT_ERROR_CODE = 201;
 
     /**

@@ -15,6 +15,7 @@ public interface LoginService {
 
     /**
      * 描述：生成验证码
+     * @param loginPo
      * @return
      */
     String getCode(LoginPo loginPo);

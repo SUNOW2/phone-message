@@ -64,7 +64,7 @@ public class BaseController extends BaseMedicalController {
      * @return
      */
     protected ResponseEntity getFailResult(String msg) {
-        return new ResponseEntity("fail", RESCODE_FAIL, "操作失败", Collections.EMPTY_MAP);
+        return new ResponseEntity("fail", RESCODE_FAIL, msg, Collections.EMPTY_MAP);
     }
 
     /**
@@ -122,10 +122,10 @@ public class BaseController extends BaseMedicalController {
 
     /**
      * 描述：获取不分页的数据，BaseQueryPo是包含了页码和每页条数的Java类
+     * @param <T>
      * @param baseQueryPo
      * @param totalCount
      * @param list
-     * @param <T>
      * @return
      */
     protected <T> CentreCutPageResponse<T> getCutPageResponse(BaseQueryPo baseQueryPo, long totalCount, List<T> list) {

@@ -13,6 +13,11 @@ spring:
     port: 6379
 # Redis服务器连接密码（默认为空）
     password:
+  datasource:
+    url: jdbc:mysql://localhost:3306/phone_message?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
+    username: root
+    password: 12345678
+    driver-class-name: com.mysql.jdbc.Driver
 
 # 日志信息
 logging:
@@ -20,3 +25,7 @@ logging:
   level:
     com:
       software: DEBUG
+
+mybatis:
+  typeAliasesPackage: com.software.phone.dao
+  mapperLocations: classpath:mapper/*.xml

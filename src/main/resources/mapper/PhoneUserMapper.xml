@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.software.phone.domain.PhoneUserMapper">
+
+
+    <resultMap id="PhoneUser" type="com.software.phone.dao.PhoneUser">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="uk_phone" property="phone" jdbcType="CHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="login_date" property="loginDate" jdbcType="TIMESTAMP"/>
+        <result column="register_date" property="registerDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="userMap" type="com.software.phone.po.SysUser">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="user_password" property="userPassword" jdbcType="VARCHAR"/>
+        <result column="user_email" property="userEmail" jdbcType="VARCHAR"/>
+        <result column="user_info" property="userInfo" jdbcType="VARCHAR"/>
+        <result column="head_img" property="headImg" jdbcType="BLOB" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <parameterMap id="getUserCountMap" type="java.util.Map">
+        <parameter property="sexId" mode="IN" jdbcType="INTEGER"/>
+        <parameter property="userCount" mode="OUT" jdbcType="INTEGER"/>
+    </parameterMap>
+
+    <sql id="phoneUserSql">
+        p.id,
+        p.uk_phone,
+        p.password,
+        p.login_date,
+        p.register_date
+    </sql>
+
+    <sql id="whereSql">
+        <if test="id != null and id != ''">
+            AND p.id = #{id, jdbcType = INTEGER}
+        </if>
+        <if test="phone != null and phone != ''">
+            AND p.uk_phone = #{phone, jdbcType = CHAR}
+        </if>
+        <if test="password != null and password != ''">
+            AND p.password = #{password, jdbcType = VARCHAR}
+        </if>
+        <if test="loginDate != null and loginDate != ''">
+            AND p.login_date = #{loginDate, jdbcType = TIMESTAMP}
+        </if>
+        <if test="registerDate != null and registerDate != ''">
+            AND p.register_date = #{registerDate, jdbcType = TIMESTAMP}
+        </if>
+    </sql>
+
+    <!-- 根据联系方式获取记录信息 -->
+    <select id="getUserByPhone" resultMap="PhoneUser">
+        SELECT
+        <include refid="phoneUserSql"/>
+        FROM phone_user p
+        JOIN
+        test t
+        ON
+        t.phone = p.uk_phone
+        WHERE 1 = 1
+        <include refid="whereSql"/>
+    </select>
+
+    <!-- 新增记录 -->
+    <insert id="saveRecord">
+        <selectKey resultType="Integer" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO
+        phone_user (
+        id
+        <if test="phone != null and phone != ''">
+            ,uk_phone
+        </if>
+        <if test="password != null and password != ''">
+            ,password
+        </if>
+        <if test="loginDate != null">
+            ,login_date
+        </if>
+        <if test="registerDate != null">
+            ,register_date
+        </if>)
+        VALUES (
+        #{id, jdbcType = INTEGER}
+        <if test="phone != null and phone != ''">
+            ,#{phone, jdbcType = VARCHAR}
+        </if>
+        <if test="password != null and password != ''">
+            ,#{password, jdbcType = VARCHAR}
+        </if>
+        <if test="loginDate != null">
+            ,#{loginDate, jdbcType = TIMESTAMP}
+        </if>
+        <if test="registerDate != null">
+            ,#{registerDate, jdbcType = TIMESTAMP}
+        </if>
+        )
+    </insert>
+
+    <!-- 查询数量 -->
+    <select id="countRecord" resultType="Integer" parameterType="com.software.phone.dao.PhoneUser">
+        SELECT
+        COUNT(1)
+        FROM phone_user p
+        WHERE 1 = 1
+        <include refid="whereSql"/>
+    </select>
+
+    <!-- 不分页查询 -->
+    <select id="selectListRecord" resultMap="PhoneUser">
+        SELECT
+        <include refid="phoneUserSql"/>
+        FROM phone_user p
+        WHERE 1 = 1
+        <include refid="whereSql"/>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="selectPageListRecord" resultMap="PhoneUser" parameterType="com.software.phone.dao.PhoneUser">
+        SELECT
+        <include refid="phoneUserSql"/>
+        FROM phone_user p
+        ORDER BY p.register_date DESC
+        LIMIT #{pageStart}, #{pageSize}
+    </select>
+
+    <!-- 测试存储过程，在调用存储过程的方法中，需要把statementType设置为CALLABLE，在使用select元素调用存储过程时，
+         由于存储过程方式不支持Mybatis的二级缓存，故将useCache属性设置为false。
+         存储过程中必须指定mode（模式），IN（入参）、OUT（出参）、INOUT（输入输出参数）三种模式-->
+    <select id="selectUserById" statementType="CALLABLE" useCache="false">
+    {call select_user_by_id(
+        #{id, mode=IN},
+        #{userName, mode=OUT, jdbcType=VARCHAR},
+        #{userPassword, mode=OUT, jdbcType=VARCHAR},
+        #{userEmail, mode=OUT, jdbcType=VARCHAR},
+        #{userInfo, mode=OUT, jdbcType=VARCHAR},
+        #{headImg, mode=OUT, jdbcType=BLOB, javaType=_byte[]},
+        #{createTime, mode=OUT, jdbcType=TIMESTAMP}
+    )}
+    </select>
+
+    <!-- 存储过程实现的分页查询 -->
+    <select id="selectUserPage" statementType="CALLABLE" useCache="false" resultMap="userMap">
+        {call select_user_page(
+            #{userName, mode=IN},
+            #{offset, mode=IN},
+            #{limit, mode=IN},
+            #{total, mode=OUT,jdbcType=BIGINT}
+        )}
+    </select>
+
+</mapper>

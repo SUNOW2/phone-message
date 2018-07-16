@@ -22,6 +22,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<mybatis-spring-boot>1.2.0</mybatis-spring-boot>
+		<mysql-connector>5.1.39</mysql-connector>
+		<jjwt>0.6.0</jjwt>
+		<commons-httpclient>3.1</commons-httpclient>
+		<commons-lang3>3.4</commons-lang3>
 	</properties>
 
 	<dependencies>
@@ -40,21 +45,12 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-		</dependency>
 
 		<!-- 用于模拟发送GET、POST请求 -->
 		<dependency>
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
+			<version>${commons-httpclient}</version>
 		</dependency>
 
 		<dependency>
@@ -77,14 +73,28 @@
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
-			<version>0.6.0</version>
+			<version>${jjwt}</version>
 		</dependency>
 
 		<!-- 提供常见的static方法utils类 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.4</version>
+			<version>${commons-lang3}</version>
+		</dependency>
+
+		<!-- Spring Boot Mybatis 依赖 -->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>${mybatis-spring-boot}</version>
+		</dependency>
+
+		<!-- MySQL 连接驱动依赖 -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql-connector}</version>
 		</dependency>
 
 
