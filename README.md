@@ -9,3 +9,14 @@
 ## 联系方式
 QQ邮箱: 1605611836@qq.com(常用)<br />
 google邮箱: sunow521310@gmail.com<br />
+
+## 介绍
+ 本工程准备分为以下几部分：<br />
+### 接口部分
+controller包，service包，impl包，还有form包，该文件夹主要存放增删查改的Java类，<br />
+但是，本项目的form包没有分的这么明显，可看批量删除接口
+### 数据库
+dao包，domain包，mapper包，值得注意的是，本项目其他项目不同，dao内存放的是映射的<br />
+端口，domain存放的是实体类，mapper存放映射的xml文件
+### 其他
+conf存放的是配置文件、基础类等，utils存放的是各种工具类，filter存放过滤器<br />

@@ -2,6 +2,7 @@ package com.software.phone.service;
 
 import com.software.phone.dao.PhoneUser;
 import com.software.phone.po.SysUser;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,4 +37,24 @@ public interface PhoneUserService extends BaseService<PhoneUser, PhoneUser> {
      * @return
      */
     List<SysUser> selectUserPage(Map<String, Object> params);
+
+    /**
+     * 批量删除
+     * @param list
+     * @return
+     */
+    int deleteByList(List<Integer> list);
+
+    /**
+     * 批量查询
+     * @param list
+     * @return
+     */
+    List<PhoneUser> queryBatch(List<String> list);
+
+    /**
+     * 批量更新
+     * @param list
+     */
+    void updateBatch(@Param("list") List<PhoneUser> list);
 }

@@ -27,9 +27,16 @@
 		<jjwt>0.6.0</jjwt>
 		<commons-httpclient>3.1</commons-httpclient>
 		<commons-lang3>3.4</commons-lang3>
+		<mybatis-generator-core>1.3.2</mybatis-generator-core>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.mybatis.generator</groupId>
+			<artifactId>mybatis-generator-core</artifactId>
+			<version>${mybatis-generator-core}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -97,7 +104,19 @@
 			<version>${mysql-connector}</version>
 		</dependency>
 
+		<!--  -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-typehandlers-jsr310</artifactId>
+			<version>1.0.2</version>
+		</dependency>
 
+		<!-- 常用的String工具类 -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -105,6 +124,11 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>1.5.8.RELEASE</version>
+				<configuration>
+					<verbose>true</verbose>
+					<overwrite>true</overwrite>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

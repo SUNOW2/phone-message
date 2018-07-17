@@ -17,8 +17,8 @@
         <result column="user_password" property="userPassword" jdbcType="VARCHAR"/>
         <result column="user_email" property="userEmail" jdbcType="VARCHAR"/>
         <result column="user_info" property="userInfo" jdbcType="VARCHAR"/>
-        <result column="head_img" property="headImg" jdbcType="BLOB" />
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="head_img" property="headImg" jdbcType="BLOB"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <parameterMap id="getUserCountMap" type="java.util.Map">
@@ -41,6 +41,13 @@
         <if test="phone != null and phone != ''">
             AND p.uk_phone = #{phone, jdbcType = CHAR}
         </if>
+        <!-- 如果数据库中存在List可以这样写 -->
+        <!--<if test="phoneList != null and phoneList != ''">-->
+            <!--AND-->
+            <!--<foreach collection="phoneList" item="phoneIdItem" open="(" close=")" separator="OR">-->
+                <!--p.uk_phone = #{phoneIdItem, jdbcType = INTEGER}-->
+            <!--</foreach>-->
+        <!--</if>-->
         <if test="password != null and password != ''">
             AND p.password = #{password, jdbcType = VARCHAR}
         </if>
@@ -153,5 +160,52 @@
             #{total, mode=OUT,jdbcType=BIGINT}
         )}
     </select>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByList" parameterType="java.util.List">
+        DELETE
+        FROM phone_user
+        WHERE
+        <foreach collection="list" item="idItem" open="(" close=")" separator="OR">
+            id = #{idItem, jdbcType = INTEGER}
+        </foreach>
+    </delete>
+
+    <!-- 批量查询 -->
+    <select id="queryBatch" resultMap="PhoneUser" parameterType="java.util.List">
+        SELECT
+        <include refid="phoneUserSql" />
+        FROM phone_user p
+        WHERE
+        <foreach collection="list" item="idItem" open="(" close=")" separator="OR">
+            p.id = #{idItem, jdbcType = INTEGER}
+        </foreach>
+    </select>
+
+    <!-- 批量更新 -->
+    <update id="updateBatch" parameterType="java.util.List">
+        UPDATE phone_user
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="uk_phone = case " suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.phone != null" >
+                        WHEN id = #{item.id, jdbcType = INTEGER} THEN #{item.phone, jdbcType = VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="password = case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.password != null">
+                        WHEN id = #{item.id, jdbcType = INTEGER} THEN #{item.password, jdbcType = VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        WHERE 1 = 1
+        AND
+        <foreach collection="list" separator="OR" item="item">
+            id = #{item.id, jdbcType = INTEGER}
+        </foreach>
+    </update>
 
 </mapper>

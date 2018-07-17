@@ -4,6 +4,9 @@ import com.software.phone.conf.CentreCutPageResponse;
 import com.software.phone.conf.ResponseEntity;
 import com.software.phone.dao.PhoneUser;
 import com.software.phone.exception.MedicalException;
+import com.software.phone.form.PhoneUserDeleteForm;
+import com.software.phone.form.PhoneUserQueryForm;
+import com.software.phone.form.PhoneUserUpdateForm;
 import com.software.phone.po.LoginPo;
 import com.software.phone.po.LoginTokenPo;
 import com.software.phone.po.SysUser;
@@ -14,6 +17,7 @@ import com.software.phone.utils.HttpRequestUtil;
 import com.software.phone.utils.JwtComponentUtil;
 import com.software.phone.utils.RedisComponentUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +25,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 /**
  * @author sunow
@@ -84,6 +88,7 @@ public class LoginController extends BaseController {
      */
     @RequestMapping(value = "/tokenLogin", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity tokenLogin(LoginTokenPo loginTokenPo, HttpServletRequest request) {
+        System.out.println("loginTokenPo = " + loginTokenPo);
 
         PhoneUser phoneUser = new PhoneUser();
         phoneUser.setPhone(loginTokenPo.getPhone());
@@ -94,7 +99,7 @@ public class LoginController extends BaseController {
         if(phoneUserService.getUserByPhone(phoneUser).getPassword().equals(loginTokenPo.getPassword())) {
             String token = jwtComponentUtil.createToken(loginTokenPo);
             redisComponent.set("medicalLoginError" + HttpRequestUtil.getIp(request), null);
-            if (token != "") {
+            if (StringUtils.isNotEmpty(token)) {
                 log.info("用户登录成功");
                 return this.getSuccessResult("登录成功", token);
             }
@@ -109,7 +114,7 @@ public class LoginController extends BaseController {
         // 判断登录失败次数，失败两次及以上，需要输入验证码
         if(errNum > AppConstantsUtil.ERR_NUM) {
             String chkCode = loginTokenPo.getChkCode();
-            if (chkCode == null) {
+            if (StringUtils.isEmpty(chkCode)) {
                 log.warn("用户未输入验证码");
                 return this.getFailResult("请输入验证码");
             }
@@ -119,7 +124,7 @@ public class LoginController extends BaseController {
     }
 
     /**
-     * 新增用户
+     * 描述：新增用户
      * @param loginPo
      * @return
      */
@@ -137,12 +142,20 @@ public class LoginController extends BaseController {
         phoneUser.setLoginDate(new Date());
         phoneUser.setRegisterDate(new Date());
 
+        /**
+         * 将Date转换为LocalDateTime
+         */
+        Date date = new Date();
+        Instant instant = date.toInstant();
+        LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        System.out.println("localDateTime = " + localDateTime);
+
         phoneUserService.saveRecord(phoneUser);
         return this.getSuccessResult();
     }
 
     /**
-     * 查询列表
+     * 描述：查询列表
      * @param phoneUser
      * @return
      */
@@ -152,28 +165,21 @@ public class LoginController extends BaseController {
     }
 
     /**
-     * 分页查询
+     * 描述：分页查询
      * @param phoneUser
      * @return
      */
     @RequestMapping(value = "/selectPageList", method = {RequestMethod.POST, RequestMethod.GET})
     public ResponseEntity<CentreCutPageResponse<PhoneUser>> selectPageList(PhoneUser phoneUser) {
         int count = phoneUserService.countRecord(phoneUser);
+
         phoneUser.setPageStart((phoneUser.getPageNum()-1) * phoneUser.getPageSize());
         List<PhoneUser> list = phoneUserService.selectPageListRecord(phoneUser);
         return this.getSuccessResult(getCutPageResponse(phoneUser.getPageNum(), phoneUser.getPageSize(), count, list));
     }
 
-    @RequestMapping(value = "/test", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity test(@RequestHeader(value = "Authorization") String authorization) throws MedicalException {
-        if (jwtComponentUtil.getClaims(authorization) == null) {
-            return this.getFailResult();
-        }
-        return this.getSuccessResult("测试成功");
-    }
-
     /**
-     * 存储过程测试
+     * 描述：存储过程测试
      * @param user
      */
     @RequestMapping(value = "/procedure", method = {RequestMethod.POST, RequestMethod.GET})
@@ -184,7 +190,7 @@ public class LoginController extends BaseController {
     }
 
     /**
-     * 存储过程实现的分页
+     * 描述：存储过程实现的分页
      * @return
      */
     @RequestMapping(value = "/procedurePage", method = {RequestMethod.POST, RequestMethod.GET})
@@ -197,5 +203,73 @@ public class LoginController extends BaseController {
         List<SysUser> list = phoneUserService.selectUserPage(params);
         System.out.println("总量 = " + params.get("total").toString());
         return this.getSuccessResult(getCutPageResponse(0, 10, (Long)params.get("total"), list));
+    }
+
+    /**
+     * 批量删除
+     * @param form
+     * @return
+     */
+    @RequestMapping(value = "/deleteBatch", method = {RequestMethod.POST, RequestMethod.GET})
+    public ResponseEntity<Integer> deleteBatch(PhoneUserDeleteForm form) {
+        /**
+         * 注意：字符数组或者Integer数组没有区别，均可以使用
+         */
+        int delNum = phoneUserService.deleteByList(form.getList());
+
+        return this.getSuccessResult("删除成功", delNum);
+    }
+
+    /**
+     * 批量查询
+     * @param form
+     * @return
+     */
+    @RequestMapping(value = "/queryBatch", method = {RequestMethod.POST, RequestMethod.GET})
+    public ResponseEntity queryBatch(PhoneUserQueryForm form) {
+        List<PhoneUser> list = phoneUserService.queryBatch(form.getList());
+
+        return this.getSuccessResult(list);
+    }
+
+    /**
+     * 批量更新
+     * @return
+     */
+    @RequestMapping(value = "/updateBatch", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity updateBatch(PhoneUserUpdateForm form) {
+        List<PhoneUser> list = new ArrayList<>();
+
+        PhoneUser phoneUser = new PhoneUser();
+        phoneUser.setId(4);
+        phoneUser.setPhone("13160022076");
+        phoneUser.setPassword("234");
+        list.add(phoneUser);
+
+        PhoneUser phoneUser1 = new PhoneUser();
+        phoneUser1.setId(5);
+        phoneUser1.setPhone("13160022077");
+        phoneUser1.setPassword("234");
+        list.add(phoneUser1);
+
+        form.setList(list);
+
+        phoneUserService.updateBatch(form.getList());
+        return this.getSuccessResult();
+    }
+
+    /**
+     * 测试用户是否携带了token,以及token是否已经过期
+     * @param authorization
+     * @return
+     * @throws MedicalException
+     */
+    @RequestMapping(value = "/test", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity test(@RequestHeader(value = "Authorization") String authorization) throws MedicalException {
+        System.out.println("authorization = " + authorization);
+        if (jwtComponentUtil.getClaims(authorization) == null) {
+            return this.getFailResult();
+        }
+        return this.getSuccessResult("测试成功");
     }
 }

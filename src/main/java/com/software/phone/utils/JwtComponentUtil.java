@@ -55,7 +55,7 @@ public class JwtComponentUtil {
                 .signWith(SignatureAlgorithm.HS256, AppConstantsUtil.JWT_SECURITY)
                 .compact();
 
-        // 将token存入数据库
+        // 将token存入数据库，这个步骤没有意义，可能是将
         redisComponent.set(token, 20 * 60 *60);
 
         return token;
