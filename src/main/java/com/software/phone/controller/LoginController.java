@@ -101,6 +101,8 @@ public class LoginController extends BaseController {
             redisComponent.set("medicalLoginError" + HttpRequestUtil.getIp(request), null);
             if (StringUtils.isNotEmpty(token)) {
                 log.info("用户登录成功");
+                phoneUser.setLoginDate(new Date());
+                phoneUserService.updateRecord(phoneUser);
                 return this.getSuccessResult("登录成功", token);
             }
         } else {
@@ -226,7 +228,9 @@ public class LoginController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/queryBatch", method = {RequestMethod.POST, RequestMethod.GET})
-    public ResponseEntity queryBatch(PhoneUserQueryForm form) {
+    public ResponseEntity queryBatch(@RequestHeader(value = "Authorization")String authorization, PhoneUserQueryForm form) throws Exception {
+        LoginTokenPo loginTokenPo = this.checkLogin(authorization);
+        System.out.println("loginToken = " + loginTokenPo);
         List<PhoneUser> list = phoneUserService.queryBatch(form.getList());
 
         return this.getSuccessResult(list);

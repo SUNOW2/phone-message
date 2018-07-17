@@ -17,5 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PhoneUserQueryForm {
+    /**
+     * 编号列表
+     */
     private List<String> list;
 }

@@ -43,4 +43,9 @@ public class PhoneUser extends BaseDao {
      * 注册时间
      */
     private Date registerDate;
+
+    /**
+     * 删除状态
+     */
+    private int isDel;
 }

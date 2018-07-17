@@ -9,6 +9,7 @@
         <result column="password" property="password" jdbcType="VARCHAR"/>
         <result column="login_date" property="loginDate" jdbcType="TIMESTAMP"/>
         <result column="register_date" property="registerDate" jdbcType="TIMESTAMP"/>
+        <result column="is_del" property="isDel" jdbcType="INTEGER"/>
     </resultMap>
 
     <resultMap id="userMap" type="com.software.phone.po.SysUser">
@@ -21,17 +22,13 @@
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <parameterMap id="getUserCountMap" type="java.util.Map">
-        <parameter property="sexId" mode="IN" jdbcType="INTEGER"/>
-        <parameter property="userCount" mode="OUT" jdbcType="INTEGER"/>
-    </parameterMap>
-
     <sql id="phoneUserSql">
         p.id,
         p.uk_phone,
         p.password,
         p.login_date,
-        p.register_date
+        p.register_date,
+        p.is_del
     </sql>
 
     <sql id="whereSql">
@@ -56,6 +53,9 @@
         </if>
         <if test="registerDate != null and registerDate != ''">
             AND p.register_date = #{registerDate, jdbcType = TIMESTAMP}
+        </if>
+        <if test="isDel != null and isDel != ''">
+            AND p.is_del = #{isDel, jdbcType = INTEGER}
         </if>
     </sql>
 
@@ -91,6 +91,9 @@
         </if>
         <if test="registerDate != null">
             ,register_date
+        </if>
+        <if test="isDel != null">
+            ,is_del
         </if>)
         VALUES (
         #{id, jdbcType = INTEGER}
@@ -106,7 +109,9 @@
         <if test="registerDate != null">
             ,#{registerDate, jdbcType = TIMESTAMP}
         </if>
-        )
+        <if test="isDel != null">
+            ,#{isDel, jdbcType = INTEGER}
+        </if>)
     </insert>
 
     <!-- 查询数量 -->
@@ -200,12 +205,40 @@
                     </if>
                 </foreach>
             </trim>
+            <trim prefix="is_del = case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.isDel != null">
+                        WHEN id = #{item.id, jdbcType = INTEGER} THEN #{item.isDel, jdbcType = INTEGER}
+                    </if>
+                </foreach>
+            </trim>
         </trim>
         WHERE 1 = 1
         AND
         <foreach collection="list" separator="OR" item="item">
             id = #{item.id, jdbcType = INTEGER}
         </foreach>
+    </update>
+
+    <!-- 单独更新，根据phone名称进行更新 -->
+    <update id="updateRecord" parameterType="com.software.phone.dao.PhoneUser" >
+        UPDATE phone_user p
+        <set>
+            <if test="password != null and password != ''">
+                p.password = #{password, jdbcType = VARCHAR},
+            </if>
+            <if test="loginDate != null">
+                p.login_date = #{loginDate, jdbcType = TIMESTAMP},
+            </if>
+            <if test="registerDate != null">
+                p.register_date = #{registerDate, jdbcType = TIMESTAMP},
+            </if>
+            <if test="isDel != null">
+                p.is_del = #{isDel, jdbcType = INTEGER}
+            </if>
+        </set>
+        WHERE 1 = 1
+        AND p.uk_phone = #{phone, jdbcType = VARCHAR}
     </update>
 
 </mapper>
