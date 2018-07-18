@@ -19,10 +19,9 @@ import com.software.phone.utils.RedisComponentUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -32,6 +31,9 @@ import java.util.*;
 
 /**
  * @author sunow
+ * 注释：由于本项目使用了@RequestBody注解，所以使用postman测试的时候，要选择row模式，
+ * Content-Type设置为"application/json"。
+ * 前端界面上传数据时，务必设置Content-Type的值
  */
 @Slf4j
 @RestController
@@ -49,6 +51,9 @@ public class LoginController extends BaseController {
 
     @Autowired
     private PhoneUserService phoneUserService;
+
+    @Autowired
+    private DiscoveryClient client;
 
     /**
      * 描述：用户点击获取验证码
@@ -87,7 +92,7 @@ public class LoginController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/tokenLogin", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity tokenLogin(LoginTokenPo loginTokenPo, HttpServletRequest request) {
+    public ResponseEntity tokenLogin(@RequestBody LoginTokenPo loginTokenPo, HttpServletRequest request) {
         System.out.println("loginTokenPo = " + loginTokenPo);
 
         PhoneUser phoneUser = new PhoneUser();
@@ -131,7 +136,7 @@ public class LoginController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/insert", method = {RequestMethod.POST, RequestMethod.GET})
-    public ResponseEntity insert(LoginPo loginPo) {
+    public ResponseEntity insert(@RequestBody LoginPo loginPo) {
         // 验证是否重名
         System.out.println("loginPo = " + loginPo);
         PhoneUser phoneUser = new PhoneUser();
@@ -163,6 +168,7 @@ public class LoginController extends BaseController {
      */
     @RequestMapping(value = "/selectList", method = {RequestMethod.POST, RequestMethod.GET})
     public ResponseEntity selectList(PhoneUser phoneUser) {
+        System.out.println("phoneUser = " + phoneUser);
         return this.getSuccessResult(phoneUserService.selectListRecord(phoneUser));
     }
 
@@ -213,7 +219,7 @@ public class LoginController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/deleteBatch", method = {RequestMethod.POST, RequestMethod.GET})
-    public ResponseEntity<Integer> deleteBatch(PhoneUserDeleteForm form) {
+    public ResponseEntity<Integer> deleteBatch(@RequestBody PhoneUserDeleteForm form) {
         /**
          * 注意：字符数组或者Integer数组没有区别，均可以使用
          */
@@ -275,5 +281,36 @@ public class LoginController extends BaseController {
             return this.getFailResult();
         }
         return this.getSuccessResult("测试成功");
+    }
+
+    /**
+     * 用于测试Eureka
+     * @return
+     */
+    @RequestMapping(value = "/hello", method = RequestMethod.GET)
+    public ResponseEntity hello() {
+        ServiceInstance serviceInstance = client.getLocalServiceInstance();
+        log.info("/hello, host：" + serviceInstance.getHost() + ", service_id：" + serviceInstance.getServiceId());
+        return this.getSuccessResult("Hello World");
+    }
+
+    /**
+     * 用于测试feign
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/hello1", method = RequestMethod.GET)
+    public ResponseEntity hello(@RequestParam Integer id) {
+        PhoneUser phoneUser = new PhoneUser();
+        phoneUser.setId(id);
+        return this.getSuccessResult(phoneUserService.selectListRecord(phoneUser));
+    }
+
+    @RequestMapping(value = "/hello2", method = RequestMethod.GET)
+    public ResponseEntity hello(@RequestHeader Integer id, @RequestHeader String password) {
+        PhoneUser phoneUser = new PhoneUser();
+        phoneUser.setId(id);
+        phoneUser.setPassword(password);
+        return this.getSuccessResult(phoneUserService.selectListRecord(phoneUser));
     }
 }
